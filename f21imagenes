@@ -1,0 +1,207 @@
+<?php
+
+error_reporting(E_ALL);
+set_time_limit(0);
+
+date_default_timezone_set('Europe/London');
+
+?>
+
+<?php
+
+/** Include path **/
+//set_include_path(get_include_path() . PATH_SEPARATOR . '../../../Classes/');
+
+/** PHPExcel_IOFactory */
+include './Classes/PHPExcel/IOFactory.php';
+
+
+$inputFileName = './files/Final para pagina Led.xls';
+//echo 'Loading file ',pathinfo($inputFileName,PATHINFO_BASENAME),' using IOFactory to identify the format<br />';
+$objPHPExcel = PHPExcel_IOFactory::load($inputFileName);
+
+
+
+$sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
+//var_dump($sheetData);
+
+
+
+$doc = new DOMDocument('1.0', 'utf-8'); 
+$doc->formatOutput = true;
+$i=0;
+$r = $doc->createElement( "items" ); 
+$doc->appendChild( $r ); 
+$arrayNuevo = array();
+
+foreach($sheetData as $pieces) {
+	$arrayNuevo[] = array(
+	    'foto' => $pieces["C"],
+	    'sku' =>  $pieces["C"]
+	);
+} 
+
+
+foreach($arrayNuevo as $nuevos) {
+	//echo 'opt/'.$nuevos['foto'].'.png';
+	if(file_exists('opt/'.$nuevos['foto'].'.png')!=false ){
+		
+		$token1  = strtok($nuevos['foto'], "\n\t");
+		
+		//echo $token1;
+		//echo $nuevos['foto'];
+		//echo $nuevos['sku'];
+		
+		
+	
+		$b = $doc->createElement( "item" );
+	
+	  	$title = $doc->createElement( "title" ); 
+	  	$title->appendChild($doc->createTextNode($nuevos['foto'])); 
+	    $b->appendChild( $title ); 
+		
+		
+		$idImg = $i+11000;
+		$idImgPapa = $i+9000;
+	  	$link = $doc->createElement( "link" ); 
+
+	  	$link->appendChild($doc->createTextNode('http://localhost/wordpress/?attachment_id='. $idImg ));
+	  	$b->appendChild( $link );
+	
+	  	$pbDate = $doc->createElement( "pubDate" ); 
+	  	$pbDate->appendChild($doc->createTextNode( 'Wed, 12 Jun 2013 05:39:58 +0000')); 
+	  	$b->appendChild( $pbDate ); 
+	
+	  	$creator = $doc->createElement( "dc:creator" ); 
+	  	$creator->appendChild($doc->createTextNode( 'admin')); 
+	  	$b->appendChild( $creator );
+	
+	  	$pbDate = $doc->createElement( "guid" );
+		$pbDate->setAttribute("isPermaLink","false");
+	  	$pbDate->appendChild($doc->createTextNode( 'http://muhle.filauno.net/wp-content/imagenes/'.$token1.'.png')); 
+	  	$b->appendChild( $pbDate );
+	
+	    $description = $doc->createElement( "description" ); 
+		$description->appendChild($doc->createTextNode("")); 
+	  	$b->appendChild( $description ); 
+	
+	  	$content = $doc->createElement( "content:encoded" ); 
+	  	$content->appendChild($doc->createCDATASection("")); 
+	  	$b->appendChild( $content ); 
+		
+	  	$content = $doc->createElement( "excerpt:encoded" ); 
+	  	$content->appendChild($doc->createCDATASection("")); 
+	  	$b->appendChild( $content ); 
+	
+		$postid = $doc->createElement('wp:post_id');
+		$postid->appendChild($doc->createTextNode($idImg));
+		$b->appendChild( $postid ); 
+	
+		$post_date = $doc->createElement('wp:post_date');
+		$post_date->appendChild($doc->createTextNode('2013-06-12 05:39:58'));
+		$b->appendChild( $post_date ); 
+	
+		$post_date_gmt = $doc->createElement('wp:post_date_gmt');
+		$post_date_gmt->appendChild($doc->createTextNode('2013-06-12 05:39:58'));
+		$b->appendChild( $post_date_gmt );
+	
+		$comment_status = $doc->createElement('wp:comment_status');
+		$comment_status->appendChild($doc->createTextNode('open'));
+		$b->appendChild( $comment_status );
+	
+		$ping_status = $doc->createElement('wp:ping_status');
+		$ping_status->appendChild($doc->createTextNode('closed'));
+		$b->appendChild( $ping_status );
+	
+		$pName = $doc->createElement('wp:post_name');
+		$pName->appendChild($doc->createTextNode($token1));
+		$b->appendChild( $pName );
+	
+		//AQUI CAMBIA
+	
+		
+		$status = $doc->createElement('wp:status');
+		$status->appendChild($doc->createTextNode('inherit'));
+		$b->appendChild( $status );
+	
+		$post_parent = $doc->createElement('wp:post_parent');
+		$post_parent->appendChild($doc->createTextNode($idImgPapa));
+		$b->appendChild( $post_parent );
+	
+		$menu_order = $doc->createElement('wp:menu_order');
+		$menu_order->appendChild($doc->createTextNode('0'));
+		$b->appendChild( $menu_order );
+	
+		$post_type = $doc->createElement('wp:post_type');
+		$post_type->appendChild($doc->createTextNode('attachment'));
+		$b->appendChild( $post_type );
+	
+		$post_password = $doc->createElement('wp:post_password');
+		$post_password->appendChild($doc->createTextNode(''));
+		$b->appendChild( $post_password );
+	
+		$is_sticky = $doc->createElement('wp:is_sticky');
+		$is_sticky->appendChild($doc->createTextNode('0'));
+		$b->appendChild( $is_sticky );
+		
+		$atch = $doc->createElement('attachment_url');
+		$atch->appendChild($doc->createTextNode( 'http://muhle.filauno.net/wp-content/imagenes/'.$token1.'.png'));
+		$b->appendChild( $atch );
+		
+	  	$pmeta = $doc->createElement( "wp:postmeta" );
+	
+			$metak = $doc->createElement( "wp:meta_key" );
+			$metak->appendChild($doc->createTextNode('_wp_attached_file'));
+			$pmeta->appendChild($metak);
+	 
+			$metaV = $doc->createElement( "wp:meta_value" );
+	 		$metaV->appendChild($doc->createCDATASection( 'http://muhle.filauno.net/wp-content/imagenes/'.$token1.'.png'));
+	 		$pmeta->appendChild($metaV);
+	
+		$b->appendChild($pmeta);
+		
+		
+	  	$pmeta = $doc->createElement( "wp:postmeta" );
+	
+			$metak = $doc->createElement( "wp:meta_key" );
+			$metak->appendChild($doc->createTextNode('_wp_attachment_metadata'));
+			$pmeta->appendChild($metak);
+	 	   
+		   	$archMetaData = "";
+			
+			$archMetaData.='a:5:{s:5:"width";i:300;s:6:"height";i:235;s:4:"file";s:43:"'.$token1.'";s:5:"sizes";a:3:{';
+				
+			$archMetaData.='s:9:"thumbnail";a:4:{s:4:"file";s:43:"'.$token1.'-150x150.png";s:5:"width";i:150;s:6:"height";i:150;s:9:"mime-type";s:10:"image/png";}';
+
+			$archMetaData.='s:14:"shop_thumbnail";a:4:{s:4:"file";s:41:"'.$token1.'-90x90.png";s:5:"width";i:90;s:6:"height";i:90;s:9:"mime-type";s:10:"image/png";}';
+
+			$archMetaData.='s:11:"shop_single";a:4:{s:4:"file";s:25:"'.$token1.'-300x300.png";s:5:"width";i:300;s:6:"height";i:300;s:9:"mime-type";s:10:"image/png";}';
+
+			$archMetaData.='}s:10:"image_meta";a:10:{';
+
+			$archMetaData.='s:8:"aperture";i:0;s:6:"credit";s:0:"";s:6:"camera";s:0:"";s:7:"caption";s:0:"";s:17:"created_timestamp";i:0;s:9:"copyright";s:0:"";s:12:"focal_length";i:0;s:3:"iso";i:0;s:13:"shutter_speed";i:0;';
+
+			$archMetaData.='s:5:"title";s:0:"";}}';
+
+			
+			
+			$metaV = $doc->createElement( "wp:meta_value" );
+	 		$metaV->appendChild($doc->createCDATASection($archMetaData));
+	 	$pmeta->appendChild($metaV);
+	
+		$b->appendChild($pmeta);
+			
+		$r->appendChild( $b );	
+
+	}else
+		echo "no tiene imagen".$nuevos['foto'];
+	echo '<br>';
+	$i++;
+	
+	
+}
+	
+
+$doc->save("imagenesMuhle.xml");
+
+//var_dump($sheetData[1]);
