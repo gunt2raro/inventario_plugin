@@ -3,8 +3,9 @@
 	$docRoot = glob($_SERVER['DOCUMENT_ROOT']);
 	#libreria de las funciones de wordpress para los metadatos etc.
 	include('Unidades.php');
+	include($docRoot[0].'/wp-config.php');
 	#el domino del host
-	$_SERVER[ 'HTTP_HOST' ] = 'localhost';
+	$_SERVER[ 'HTTP_HOST' ] = DB_HOST;
 	#ubicacion del wp-load.php para accesar a la base de datos con el $wpdb
 	$wp_load_loc = $docRoot[0].'/wp-load.php';
 	#lo agrega como libreria
